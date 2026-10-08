@@ -5,72 +5,113 @@ let usuarioAtual = null;
    AUTENTICAÇÃO
 ================================ */
 
-auth.onAuthStateChanged(user => {
+let usuarioAtual = null;
+
+
+auth.onAuthStateChanged(async (user) => {
+
+    // Usuário não está logado
 
     if (!user) {
-        window.location.href = "index.html";
+
+        window.location.href = "login.html";
+
         return;
     }
 
+
     usuarioAtual = user;
 
-    db.collection("usuarios")
-        .doc(user.uid)
-        .get()
-        .then(doc => {
 
-            if (!doc.exists || doc.data().perfil !== "admin") {
+    try {
 
-                alert("Acesso negado.");
-                window.location.href = "index.html";
+        // Busca o usuário no Firestore
 
-                return;
-            }
+        const documento = await db
+            .collection("usuarios")
+            .doc(user.uid)
+            .get();
 
-            carregarProdutos();
-            carregarUsuarios();
 
-        })
-        .catch(error => {
+        // Usuário não existe
 
-            console.error(
-                "Erro ao verificar administrador:",
-                error
-            );
+        if (!documento.exists) {
 
-            alert("Erro ao verificar acesso.");
-            window.location.href = "index.html";
+            alert("Usuário não cadastrado.");
 
-        });
+            await auth.signOut();
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+
+        const dadosUsuario = documento.data();
+
+
+        // Verifica se é administrador
+
+        if (dadosUsuario.perfil !== "admin") {
+
+            alert("Acesso negado. Você não é administrador.");
+
+            await auth.signOut();
+
+            window.location.href = "login.html";
+
+            return;
+        }
+
+
+        // Usuário autorizado
+
+        console.log(
+            "Administrador autenticado:",
+            user.email
+        );
+
+
+        carregarProdutos();
+
+        carregarUsuarios();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao verificar administrador:",
+            erro
+        );
+
+
+        await auth.signOut();
+
+        window.location.href = "login.html";
+
+    }
 
 });
 
-
-/* ================================
-   LOGOUT
-================================ */
 
 function logout() {
 
     auth.signOut()
         .then(() => {
 
-            window.location.href = "index.html";
+            window.location.href = "login.html";
 
         })
-        .catch(error => {
+        .catch((erro) => {
 
             console.error(
                 "Erro ao sair:",
-                error
+                erro
             );
-
-            alert("Não foi possível sair.");
 
         });
 
 }
-
 
 /* ================================
    IMAGEM
