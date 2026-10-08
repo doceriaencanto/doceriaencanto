@@ -1,60 +1,495 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Painel Admin</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="js/firebase-config.js"></script>
-  <script src="js/admin.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Painel Administrativo - Doceria Encanto</title>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- Configuração Firebase -->
+    <script src="js/firebase-config.js"></script>
+
+    <!-- JavaScript do Admin -->
+    <script src="js/admin.js" defer></script>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #fff8f5;
+            color: #333;
+        }
+
+        /* CABEÇALHO */
+
+        header {
+            background: linear-gradient(135deg, #ff8ab3, #ffb6c1);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .logo {
+            position: absolute;
+            top: 15px;
+            left: 25px;
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+        }
+
+        /* NAVEGAÇÃO */
+
+        nav {
+            background: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #ff4f87;
+            font-weight: bold;
+            margin: 0 15px;
+        }
+
+        nav a:hover {
+            color: #e83e76;
+        }
+
+        /* CONTAINER */
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        /* TÍTULOS */
+
+        h2,
+        h3 {
+            color: #ff4f87;
+            margin-bottom: 20px;
+        }
+
+        /* MENSAGEM */
+
+        .mensagem {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* BOTÕES */
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: bold;
+        }
+
+        .btn-principal {
+            background: #ff4f87;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .btn-principal:hover {
+            background: #e83e76;
+        }
+
+        .btn-salvar {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-cancelar {
+            background: #777;
+            color: white;
+            margin-left: 5px;
+        }
+
+        .btn-editar {
+            background: #ffc107;
+            color: #333;
+            margin-right: 5px;
+        }
+
+        .btn-excluir {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-admin {
+            background: #198754;
+            color: white;
+        }
+
+        .btn-sair {
+            background: white;
+            color: #ff4f87;
+            border: 1px solid #ff4f87;
+        }
+
+        /* FORMULÁRIO */
+
+        #form-produto {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .campo {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        /* PRODUTOS */
+
+        #lista-produtos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .produto {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0,0,0,.08);
+        }
+
+        .produto img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .produto-conteudo {
+            padding: 18px;
+        }
+
+        .produto h4 {
+            color: #ff4f87;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .produto p {
+            margin-bottom: 8px;
+        }
+
+        .acoes {
+            margin-top: 15px;
+        }
+
+        /* USUÁRIOS */
+
+        #lista-usuarios {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        #lista-usuarios li {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge-admin {
+            background: #198754;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        /* RODAPÉ */
+
+        footer {
+            margin-top: 50px;
+            background: linear-gradient(135deg, #ff8ab3, #ffb6c1);
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        /* RESPONSIVO */
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 30px 15px;
+                padding-top: 100px;
+            }
+
+            .logo {
+                width: 80px;
+                height: 80px;
+                left: 15px;
+                top: 10px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            nav a {
+                display: inline-block;
+                margin: 5px 8px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            #lista-usuarios li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+        }
+
+    </style>
 </head>
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-<div class="container d-flex justify-content-between align-items-center">
-<a class="navbar-brand" href="https://professorjacksonmarques.github.io/firebase/index.html">🛍️ Loja Online</a>
-<div>
-<button class="btn btn-outline-secondary me-2 d-none" id="btn-admin" onclick="window.location.href='admin.html'">Admin</button>
-<button class="btn btn-outline-primary me-2" id="btn-login" onclick="abrirLogin()">Entrar</button>
-<button class="btn btn-outline-secondary d-none" id="btn-logout" onclick="logout()">Sair</button>
-</div>
-</div>
-</nav>
-<body class="bg-light">
-  <div class="container mt-4">
-    <h2>Painel Administrativo</h2>
-    <div id="mensagem" class="alert alert-info d-none"></div>
-    <button class="btn btn-primary my-3" onclick="mostrarFormulario()">Adicionar Produto</button>
-    <div id="form-produto" class="mb-4 d-none">
-      <input type="text" id="nome" class="form-control mb-2" placeholder="Nome do produto">
-      <input type="number" id="preco" class="form-control mb-2" placeholder="Preço">
-      <input type="number" id="estoque" class="form-control mb-2" placeholder="Estoque">
 
-      <select id="tipoImagem" class="form-select mb-2" onchange="alternarEntradaImagem()">
-        <option value="url">Imagem por link (URL)</option>
-        <option value="arquivo">Imagem do computador</option>
-      </select>
+<body>
 
-      <input type="text" id="imagemURL" class="form-control mb-2" placeholder="Cole o link da imagem">
-      <input type="file" id="imagemArquivo" class="form-control mb-2 d-none">
+    <!-- CABEÇALHO -->
 
-      <input type="hidden" id="id-produto">
-      <button class="btn btn-success" onclick="salvarProduto()">Salvar</button>
-      <button class="btn btn-secondary" onclick="cancelarFormulario()">Cancelar</button>
-    </div>
-    <div id="lista-produtos" class="row"></div>
+    <header>
 
-    <h3 class="mt-5">Gerenciar Usuários</h3>
-    <ul id="lista-usuarios" class="list-group mb-5"></ul>
-  </div>
+        <a href="index.html" aria-label="Voltar para a página inicial">
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <footer class="bg-dark text-light py-4 mt-5">
-    <div class="container text-center">
-      <p class="mb-1">© 2025 Loja Online - Todos os direitos reservados.</p>
-      <p class="mb-0"><small>Desenvolvido com ♥ usando Firebase & Bootstrap</small></p>
-    </div>
-  </footer>
+            <img
+                src="logo.png"
+                alt="Logo Doceria Encanto"
+                class="logo"
+            >
+
+        </a>
+
+        <h1>🍰 Doceria Encanto</h1>
+
+        <p>Painel Administrativo</p>
+
+    </header>
+
+
+    <!-- NAVEGAÇÃO -->
+
+    <nav>
+
+        <a href="index.html">🏠 Início</a>
+
+        <a href="#produtos">🍰 Produtos</a>
+
+        <a href="#usuarios">👥 Usuários</a>
+
+        <a href="#" onclick="logout(); return false;">
+            🚪 Sair
+        </a>
+
+    </nav>
+
+
+    <!-- CONTEÚDO -->
+
+    <main class="container">
+
+        <!-- MENSAGEM -->
+
+        <div
+            id="mensagem"
+            class="mensagem"
+        ></div>
+
+
+        <!-- PRODUTOS -->
+
+        <section id="produtos">
+
+            <h2>🍰 Gerenciar Produtos</h2>
+
+            <button
+                class="btn-principal"
+                onclick="mostrarFormulario()"
+            >
+                ➕ Adicionar Produto
+            </button>
+
+
+            <!-- FORMULÁRIO -->
+
+            <div id="form-produto">
+
+                <h3>Cadastro de Produto</h3>
+
+
+                <input
+                    type="hidden"
+                    id="id-produto"
+                >
+
+
+                <input
+                    type="text"
+                    id="nome"
+                    class="campo"
+                    placeholder="Nome do produto"
+                >
+
+
+                <input
+                    type="number"
+                    id="preco"
+                    class="campo"
+                    placeholder="Preço"
+                    step="0.01"
+                    min="0"
+                >
+
+
+                <input
+                    type="number"
+                    id="estoque"
+                    class="campo"
+                    placeholder="Estoque"
+                    min="0"
+                >
+
+
+                <select
+                    id="tipoImagem"
+                    class="campo"
+                    onchange="alternarEntradaImagem()"
+                >
+
+                    <option value="url">
+                        Imagem por link (URL)
+                    </option>
+
+                    <option value="arquivo">
+                        Imagem do computador
+                    </option>
+
+                </select>
+
+
+                <input
+                    type="text"
+                    id="imagemURL"
+                    class="campo"
+                    placeholder="Cole o link da imagem"
+                >
+
+
+                <input
+                    type="file"
+                    id="imagemArquivo"
+                    class="campo"
+                    accept="image/*"
+                    style="display:none;"
+                >
+
+
+                <button
+                    class="btn-salvar"
+                    onclick="salvarProduto()"
+                >
+                    💾 Salvar
+                </button>
+
+
+                <button
+                    class="btn-cancelar"
+                    onclick="cancelarFormulario()"
+                >
+                    Cancelar
+                </button>
+
+            </div>
+
+
+            <!-- LISTA DE PRODUTOS -->
+
+            <div id="lista-produtos"></div>
+
+        </section>
+
+
+        <!-- USUÁRIOS -->
+
+        <section id="usuarios" style="margin-top: 50px;">
+
+            <h2>👥 Gerenciar Usuários</h2>
+
+            <ul id="lista-usuarios"></ul>
+
+        </section>
+
+    </main>
+
+
+    <!-- RODAPÉ -->
+
+    <footer>
+
+        <p>
+            © 2026 Doceria Encanto - Todos os direitos reservados.
+        </p>
+
+        <p>
+            Desenvolvido com ♥ usando Firebase
+        </p>
+
+    </footer>
+
 </body>
+
 </html>

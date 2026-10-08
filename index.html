@@ -23,7 +23,20 @@ header{
     color:white;
     text-align:center;
     padding:80px 20px;
+    position:relative;
 }
+
+/* LOGO NO CANTO SUPERIOR ESQUERDO */
+.logo{
+    position:absolute;
+    top:20px;
+    left:25px;
+    width: 132px;
+    height:132px;
+    object-fit:contain;
+}
+
+
 
 header h1{
     font-size:3rem;
@@ -41,6 +54,7 @@ nav{
     box-shadow:0 2px 8px rgba(0,0,0,.1);
     position:sticky;
     top:0;
+    z-index:10;
 }
 
 nav a{
@@ -110,19 +124,63 @@ footer{
     text-align:center;
     padding:20px;
 }
+.administrador:#ffe4ec;
+    border-radius:20px;
+    text-align:center;
+    padding:40px;
+}
+
+footer{
+    background:#ff8ab3;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+
+
+/* AJUSTE PARA CELULAR */
+@media (max-width:600px){
+    .logo{
+        width:75px;
+        height:75px;
+        top:15px;
+        left:15px;
+    }
+
+    header{
+        padding:100px 20px 60px;
+    }
+
+    header h1{
+        font-size:2.2rem;
+    }
+
+    header p{
+        font-size:1rem;
+    }
+}
 </style>
 </head>
+
 <body>
 
-<header>
+    <header>
+
+    <!-- LOGO CLICÁVEL -->
+    <a href="index.html" aria-label="Voltar para a página inicial">
+        <img src="logo.png" alt="Logo Doceria Encanto" class="logo">
+    </a>
+
     <h1>🍰 Doceria Encanto</h1>
     <p>Transformando momentos em doces lembranças</p>
+
 </header>
 
 <nav>
     <a href="#produtos">Produtos</a>
     <a href="#sobre">Sobre</a>
     <a href="#contato">Contato</a>
+    <a href="admin.html">Administrador</a>
 </nav>
 
 <section id="produtos">
@@ -137,8 +195,8 @@ footer{
         </div>
 
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1587241321921-91a834d6d191" alt="Brigadeiro">
-            <h3>Brigadeiros Gourmet</h3>
+            <img src="https://images.unsplash.com/photo-1587241321921-91a834d6d191" alt="Doce">
+            <h3>Doces Gourmet</h3>
             <p>Sabores especiais feitos com ingredientes selecionados.</p>
         </div>
 
@@ -153,6 +211,7 @@ footer{
 
 <section id="sobre">
     <h2>Sobre Nós</h2>
+
     <div class="sobre">
         <p>
             A Doceria Encanto nasceu com a missão de levar sabor,
@@ -174,9 +233,14 @@ footer{
     </div>
 </section>
 
+
+
+
 <footer>
+
     © 2026 Doceria Encanto - Todos os direitos reservados.
+
 </footer>
 
 </body>
-</html> 
+</html>
